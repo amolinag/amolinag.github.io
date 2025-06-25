@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Portafolio | Ángel Molina Gómez</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0a0a0a;
+      color: #d9ffd9;
+    }
+
+    .zona-oscura {
+      background-color: #000;
+    }
+
+    .zona-clara {
+      background-color: #1a1a1a;
+    }
+
+    nav {
+      background-color: #000;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      border-bottom: 1px solid #2fff2f33;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #2fff2f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    header {
+      text-align: center;
+      padding: 60px 20px 20px;
+    }
+
+    header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: #2fff2f;
+    }
+
+    header h2 {
+      font-size: 20px;
+      font-weight: normal;
+      color: #b0ffb0;
+    }
+
+    .botones {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .botones a {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #2fff2f;
+      color: #000;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .botones a:hover {
+      background-color: #1acc1a;
+    }
+
+    .boton-animado {
+      display: inline-block;
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: #2fff2f;
+      color: #000;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .boton-animado:hover {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow: 0 6px 12px #2fff2f55;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .foto-perfil {
+      text-align: center;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      background-color: #0000;
+    }
+
+    .foto-perfil img {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      border: 3px solid #2fff2f;
+      transition: transform 0.3s ease;
+    }
+
+    .foto-perfil img:hover {
+      transform: scale(1.08);
+    }
+
+    .sobre-mi {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 40px;
+      max-width: 1100px;
+      margin: auto;
+      gap: 40px;
+      background-color: #1a1a1a;
+    }
+    .experiencia-profesional {
+      max-width: 1100px;
+      margin: auto;
+      padding: 60px 40px;
+    }
+    
+    .experiencia-profesional h3 {
+      font-size: 28px;
+      color: #2fff2f;
+      border-bottom: 2px solid #2fff2f;
+      display: inline-block;
+      margin-bottom: 40px;
+    }
+    
+    .experiencia-item {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+      gap: 20px;
+    }
+    
+    .experiencia-detalle {
+      flex: 1 1 700px;
+    }
+    
+    .experiencia-detalle h4 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 20px;
+    }
+    
+    .experiencia-detalle em {
+      font-style: italic;
+      color: #b0ffb0;
+      display: block;
+      margin-bottom: 10px;
+    }
+    
+    .experiencia-detalle p {
+      margin: 8px 0;
+      line-height: 1.5;
+      color: #c2ffc2;
+    }
+    
+    .experiencia-tecnologias {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .experiencia-tecnologias span {
+      background-color: #2fff2f33;
+      color: #2fff2f;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+    
+    .experiencia-fecha {
+      flex: 0 0 auto;
+      color: #2fffcc;
+      font-weight: bold;
+      white-space: nowrap;
+      font-size: 16px;
+      align-self: start;
+    }
+
+    .contenido-texto {
+      flex: 1 1 500px;
+      color: #d9ffd9;
+    }
+
+    .contenido-texto h3 {
+      font-size: 28px;
+      color: #2fff2f;
+      border-bottom: 2px solid #2fff2f;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .contenido-texto p {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .foto-sobre-mi {
+      flex: 0 1 300px;
+      border: 2px solid #2fff2f;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 0 12px #2fff2f55;
+    }
+
+    .foto-sobre-mi img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .descripcion {
+      text-align: center;
+      padding: 10px 30px 30px;
+      max-width: 700px;
+      margin: auto;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .proyectos-destacados {
+      padding: 60px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .proyectos-destacados h3 {
+      text-align: center;
+      font-size: 28px;
+      color: #2fff2f;
+      margin-bottom: 10px;
+    }
+
+    .proyectos-destacados p {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #b0ffb0;
+    }
+
+    .grid-proyectos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .tarjeta-proyecto {
+      background-color: #111;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px #2fff2f22;
+    }
+
+    .tarjeta-proyecto img {
+      width: 100%;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .tarjeta-proyecto h4 {
+      margin: 10px 0 5px;
+      color: #2fff2f;
+    }
+
+    .tarjeta-proyecto p {
+      font-size: 15px;
+      color: #c2ffc2;
+    }
+
+    .tarjeta-proyecto .tecnologias {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      margin-top: 10px;
+    }
+
+    .tarjeta-proyecto .tecnologias span {
+      background-color: #2fff2f33;
+      color: #2fff2f;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .tarjeta-proyecto a {
+      display: inline-block;
+      margin-top: 12px;
+      color: #2fff2f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* CONTACTO estilo Antonio Monzó */
+.contacto-section {
+  background: #111; /* mismo color que tu cabecera y nav */
+  color: #2fff2f;
+  text-align: center;
+  padding: 60px 16px 40px;
+  margin-top: 60px;
+}
+
+    .contacto-section h2 {
+      font-size: 1.35rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      margin-top: 0;
+      letter-spacing: 0.5px;
+      position: relative;
+      display: inline-block;
+    }
+    .contacto-section h2::after {
+      content: "";
+      display: block;
+      width: 44px;
+      height: 3px;
+      background: #2fff2f;
+      margin: 8px auto 0;
+      border-radius: 2px;
+    }
+    .contacto-section p {
+      max-width: 420px;
+      margin: 0 auto 30px;
+      color: #b0c4d4;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    .iconos-contacto {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 18px;
+    }
+    .iconos-contacto a {
+      color: #e8e8e8;
+      font-size: 2.1rem;
+      transition: color 0.2s, transform 0.2s;
+      display: inline-block;
+    }
+    .iconos-contacto a:hover {
+      color: #2fff2f;
+      transform: translateY(-4px) scale(1.12);
+    }
+    @media (max-width: 600px) {
+      .contacto-section {
+        padding: 40px 8px 24px;
+      }
+      .iconos-contacto {
+        gap: 18px;
+      }
+    }
+
+    /* FOOTER sencillo */
+    footer.footer {
+      background: #0b223a;
+      color: #b0c4d4;
+      text-align: center;
+      padding: 22px 0 10px;
+      margin-top: 0;
+      font-size: 15px;
+      border-top: 1px solid #2fff2f22;
+    }
+
+    @media (max-width: 768px) {
+      .sobre-mi {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .contenido-texto, .foto-sobre-mi {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+
+      .contenido-texto {
+        max-width: 100%;
+      }
+
+      .foto-sobre-mi {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="zona-oscura">
+    <nav>
+      <a href="#inicio">Inicio</a>
+      <a href="#sobre-mi">Sobre mí</a>
+      <a href="#experiencia">Experiencia</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#educacion">Educación</a>
+      <a href="#habilidades">Habilidades</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <header id="inicio">
+      <h2>Hola, soy</h2>
+      <h1>Ángel Molina Gómez</h1>
+      <h2>Ingeniero de telecomunicaciones</h2>
+    </header>
+
+    <div class="botones">
+      <a href="CV2024_E1.pdf" download class="boton-animado">Descargar CV</a>
+      <a href="#proyectos" class="boton-animado">Mis proyectos</a>
+    </div>
+
+    <div class="foto-perfil">
+      <img src="Img/portfolio.jpg" alt="Foto de Ángel">
+    </div>
+  </div>
+
+  <div class="zona-clara">
+    <div class="sobre-mi" id="sobre-mi">
+      <div class="contenido-texto">
+        <h3>Sobre mí</h3>
+        <p>Ingeniero de telecomunicaciones con formación en Data Science e inteligencia artificial, y experiencia en proyectos reales que resuelven problemas complejos con enfoque técnico y creativo.</p>
+        <p>Mi perfil combina el desarrollo de software, la automatización de procesos, y el diseño de soluciones hardware mediante impresión 3D y microcontroladores.</p>
+        <p><strong>📛 Nombre:</strong> Ángel Molina Gómez</p>
+        <p><strong>📧 Email:</strong> amolinag171@gmail.com</p>
+        <p><strong>📍 Ubicación:</strong> Madrid, España</p>
+      </div>
+
+      <div class="foto-sobre-mi">
+        <img src="Img/angelupm.jpg" alt="Foto nueva de Ángel">
+      </div>
+    </div>
+
+    <section class="experiencia-profesional" id="experiencia">
+      <h3>Experiencia Profesional</h3>
+    
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Desarrollador Full Stack Freelance</h4>
+          <em>Autónomo/Freelance</em>
+          <p>Desarrollo de aplicaciones web personalizadas para diversos clientes.</p>
+          <p>Implementación de soluciones frontend con React y JavaScript.</p>
+          <p>Creación de APIs RESTful con PHP y Java.</p>
+          <p>Diseño y optimización de bases de datos MySQL.</p>
+          <div class="experiencia-tecnologias">
+            <span>HTML5</span>
+            <span>CSS3</span>
+            <span>JavaScript</span>
+            <span>React</span>
+            <span>PHP</span>
+            <span>Java</span>
+            <span>MySQL</span>
+          </div>
+        </div>
+        <div class="experiencia-fecha">2023 - Presente</div>
+      </div>
+    
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Programador/Diseñador Web</h4>
+          <em>BJDRONES</em>
+          <p>Desarrollo completo del sitio web corporativo.</p>
+          <p>Gestión de equipos técnicos (drones y cámaras).</p>
+          <p>Coordinación directa con el cliente para requerimientos.</p>
+          <p>Implementación de funcionalidades interactivas con JavaScript.</p>
+          <div class="experiencia-tecnologias">
+            <span>HTML5</span>
+            <span>CSS3</span>
+            <span>JavaScript</span>
+            <span>Java</span>
+          </div>
+        </div>
+        <div class="experiencia-fecha">2023</div>
+      </div>
+    </section>
+
+    <section class="experiencia-profesional" id="educacion">
+      <h3>Educación</h3>
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Ingeniería de Tecnologías y Servicios de Telecomunicaciones</h4>
+          <em>Universidad XYZ</em>
+          <p>Formación en tecnologías de telecomunicaciones, incluyendo diseño y gestión de redes.</p>
+          <p>Desarrollo de proyectos prácticos en el ámbito de las telecomunicaciones.</p>
+        </div>
+        <div class="experiencia-fecha">2018 - 2022</div>
+      </div>
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Máster en Data Science e Inteligencia Artificial</h4>
+          <em>Universidad ABC</em>
+          <p>Formación avanzada en análisis de datos, machine learning y técnicas de inteligencia artificial.</p>
+          <p>Desarrollo de proyectos de investigación aplicados a la industria.</p>
+        </div>
+        <div class="experiencia-fecha">2022 - 2023</div>
+      </div>
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Certificación en Inglés (C1)</h4>
+          <em>Instituto de Idiomas</em>
+          <p>Certificación de nivel avanzado en el idioma inglés.</p>
+        </div>
+        <div class="experiencia-fecha">2021</div>
+      </div>
+      <div class="experiencia-item">
+        <div class="experiencia-detalle">
+          <h4>Certificación en Alemán (A1)</h4>
+          <em>Instituto de Idiomas</em>
+          <p>Certificación de nivel básico en el idioma alemán.</p>
+        </div>
+        <div class="experiencia-fecha">2021</div>
+      </div>
+    </section>
+
+    <section class="proyectos-destacados" id="proyectos">
+      <h3>Mis Proyectos</h3>
+      <p>Aquí tienes algunos de mis proyectos recientes.</p>
+
+      <div class="grid-proyectos">
+        <div class="tarjeta-proyecto">
+          <img src="Img/proyecto1.jpg" alt="Proyecto 1: Acelerómetro">
+          <h4>Radio FM con STM32F429ZI y RDA5807</h4>
+          <p>Diseño de una radio FM modular basada en el microcontrolador STM32F429ZI y la MBED Application Board...</p>
+          <div class="tecnologias">
+            <span>STM32F429ZI</span>
+            <span>MBED Application Board</span>
+            <span>RDA5807</span>
+            <span>I2C</span>
+            <span>SPI</span>
+            <span>Multithreading</span>
+            <span>C++</span>
+          </div>
+          <a href="#">Ver más</a>
+        </div>
+
+        <div class="tarjeta-proyecto">
+          <img src="Img/proyecto2.jpg" alt="Proyecto 2: Acelerómetro">
+          <h4>Controlador de acelerómetro con Raspberry Pi</h4>
+          <p>Implementación de un sistema de adquisición y visualización de datos de un acelerómetro...</p>
+          <div class="tecnologias">
+            <span>Raspberry Pi</span>
+            <span>RaspbianOS</span>
+            <span>Python</span>
+            <span>I2C</span>
+            <span>Acelerómetro</span>
+            <span>Gráficas en tiempo real</span>
+          </div>
+          <a href="#">Ver más</a>
+        </div>
+
+        <div class="tarjeta-proyecto">
+          <img src="Img/proyecto3.jpg" alt="Proyecto 3: Acelerómetro">
+          <h4>Servidor local en Raspberry Pi</h4>
+          <p>Configuración de un entorno de desarrollo local en RPi para pruebas de red.</p>
+          <div class="tecnologias">
+            <span>Raspberry Pi</span><span>Linux</span><span>Redes</span>
+          </div>
+          <a href="#">Ver más</a>
+        </div>
+      </div>
+    </section>
+  </div>
+    <div class="botones">
+      <a href="games/tresenraya.html" id="botonIndecision" class="boton-animado">Tres En Raya</a>
+      <a href="games/snake.html" id="botonIndecision2" class="boton-animado">Snake</a>
+      <a href="games/atari_breakout.html" id="botonIndecision3" class="boton-animado">Atari Breakout</a>
+      <a href="games/flappy_bird.html" id="botonIndecision4" class="boton-animado">Flappy Bird</a>
+      <a href="games/2048.html" id="botonIndecision4" class="boton-animado">2048</a>
+      <a href="games/hundelaflota.html" id="botonIndecision4" class="boton-animado">Hundir la flota</a>
+    </div>
+  <!-- CONTACTO + ICONOS -->
+  <section class="contacto-section" id="contacto">
+    <h2>Contacto</h2>
+    <p>¿Tienes un proyecto en mente o quieres saber más sobre mi trabajo? Estoy disponible para oportunidades freelance y colaboraciones.</p>
+    <div class="iconos-contacto">
+      <a href="mailto:amolinag171@gmail.com" target="_blank" aria-label="Email"><i class="fas fa-envelope"></i></a>
+      <a href="https://github.com/angelmolina" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/%C3%A1ngel-m-377097139?trk=contact-info" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      <a href="https://instagram.com/angelmg_27" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    &copy; 2025 Ángel Molina Gómez. Todos los derechos reservados.
+  </footer>
+
+</body>
+</html>
