@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Hundir la Flota vs Ángel.bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #111; color: #fff; font-family: Arial, sans-serif; text-align: center; }
+    h1 { color: #6aff6a; }
+    .tableros {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 40px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .tablero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1 1 0;
+      min-width: 220px;
+      background: #222;
+      border-radius: 12px;
+      padding: 16px 8px 16px 8px;
+      box-sizing: border-box;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(8, 32px);
+      grid-template-rows: repeat(8, 32px);
+      gap: 2px;
+      background: #222;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 0 auto 10px auto;
+    }
+    .cell {
+      width: 32px; height: 32px;
+      background: #1a5d1a;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .cell.hit { background: #e74c3c; color: #fff; }
+    .cell.miss { background: #555; color: #fff; }
+    .cell.ship { background: #6aff6a; }
+    .avatar {
+      width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; border: 3px solid #6aff6a;
+    }
+    .nombre-bot { font-weight: bold; color: #6aff6a; margin-bottom: 16px; }
+    #msg { min-height: 32px; margin: 15px 0; font-size: 18px; }
+    .btn-retorno {
+      padding: 10px 24px;
+      border-radius: 6px;
+      border: none;
+      background: #1a5d1a;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px auto 0 auto;
+      display: block;
+    }
+    .btn-retorno:hover {
+      background: #2a7d2a;
+    }
+    button { padding: 10px 24px; border-radius: 6px; border: none; background: #1a5d1a; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; margin: 10px; }
+    button:hover { background: #2a7d2a; }
+    @media (max-width: 800px) {
+      .tableros { flex-direction: column; align-items: center; gap: 20px; }
+      .tablero { min-width: 0; width: 100%; max-width: 340px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Hundir la Flota vs Ángel.bot</h1>
+  <div class="tableros">
+    <div class="tablero" id="tablero-jugador">
+      <div><span style="font-weight:bold;">Tu tablero</span></div>
+      <div id="playerGrid" class="grid"></div>
+    </div>
+    <div class="tablero" id="tablero-bot">
+      <img src="../Img/portfolio.jpg" class="avatar" alt="Ángel.bot" />
+      <div class="nombre-bot">Ángel.bot</div>
+      <div id="botGrid" class="grid"></div>
+    </div>
+  </div>
+  <div id="msg"></div>
+  <button onclick="resetGame()">Reiniciar</button>
+  <button onclick="window.location.href='../index.html'" class="btn-retorno">Volver al Portfolio</button>
+  <script>
+    const SIZE = 8;
+    const SHIPS = [3, 2, 2]; // barcos de 3 y 2 casillas
+    let playerBoard, botBoard, playerHits, botHits, playerTurn, gameOver;
+    let botShots = [];
+
+    function emptyBoard() {
+      return Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+    }
+
+    function placeShipsRandom(board) {
+      for (let shipLen of SHIPS) {
+        let placed = false;
+        while (!placed) {
+          let dir = Math.random() < 0.5 ? 'H' : 'V';
+          let r = Math.floor(Math.random() * (dir === 'H' ? SIZE : SIZE - shipLen + 1));
+          let c = Math.floor(Math.random() * (dir === 'V' ? SIZE : SIZE - shipLen + 1));
+          let ok = true;
+          for (let i = 0; i < shipLen; i++) {
+            let rr = r + (dir === 'V' ? i : 0);
+            let cc = c + (dir === 'H' ? i : 0);
+            if (board[rr][cc] !== 0) ok = false;
+          }
+          if (ok) {
+            for (let i = 0; i < shipLen; i++) {
+              let rr = r + (dir === 'V' ? i : 0);
+              let cc = c + (dir === 'H' ? i : 0);
+              board[rr][cc] = 1;
+            }
+            placed = true;
+          }
+        }
+      }
+    }
+
+    function drawBoards() {
+      // Jugador
+      const pGrid = document.getElementById('playerGrid');
+      pGrid.innerHTML = '';
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          if (playerBoard[r][c] === 1) cell.classList.add('ship');
+          if (playerBoard[r][c] === 2) cell.classList.add('miss');
+          if (playerBoard[r][c] === 3) cell.classList.add('hit');
+          cell.textContent = playerBoard[r][c] === 3 ? '✖' : playerBoard[r][c] === 2 ? '•' : '';
+          pGrid.appendChild(cell);
+        }
+      }
+      // Bot
+      const bGrid = document.getElementById('botGrid');
+      bGrid.innerHTML = '';
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          if (botBoard[r][c] === 2) cell.classList.add('miss');
+          if (botBoard[r][c] === 3) cell.classList.add('hit');
+          cell.textContent = botBoard[r][c] === 3 ? '✖' : botBoard[r][c] === 2 ? '•' : '';
+          if (!gameOver && playerTurn && botBoard[r][c] < 2) {
+            cell.addEventListener('click', () => playerShot(r, c));
+            cell.style.cursor = 'pointer';
+          } else {
+            cell.style.cursor = 'default';
+          }
+          bGrid.appendChild(cell);
+        }
+      }
+    }
+
+    function playerShot(r, c) {
+      if (botBoard[r][c] >= 2 || gameOver || !playerTurn) return;
+      if (botBoard[r][c] === 1) {
+        botBoard[r][c] = 3;
+        playerHits++;
+        setMsg("¡Tocado! Dispara de nuevo.");
+        if (playerHits === SHIPS.reduce((a,b)=>a+b)) {
+          setMsg("¡Has ganado! Todos los barcos de Ángel.bot hundidos.");
+          gameOver = true;
+        }
+      } else {
+        botBoard[r][c] = 2;
+        setMsg("Agua. Turno de Ángel.bot...");
+        playerTurn = false;
+        setTimeout(botTurn, 1200);
+      }
+      drawBoards();
+    }
+
+    function botTurn() {
+      if (gameOver) return;
+      let r, c;
+      do {
+        r = Math.floor(Math.random() * SIZE);
+        c = Math.floor(Math.random() * SIZE);
+      } while (botShots.some(s => s[0] === r && s[1] === c));
+      botShots.push([r, c]);
+      if (playerBoard[r][c] === 1) {
+        playerBoard[r][c] = 3;
+        botHits++;
+        setMsg("Ángel.bot ha hecho ¡Tocado! Dispara otra vez.");
+        drawBoards();
+        if (botHits === SHIPS.reduce((a,b)=>a+b)) {
+          setMsg("¡Has perdido! Ángel.bot ha hundido toda tu flota.");
+          gameOver = true;
+          return;
+        }
+        setTimeout(botTurn, 1200);
+      } else {
+        playerBoard[r][c] = 2;
+        setMsg("Ángel.bot falló. ¡Tu turno!");
+        playerTurn = true;
+        drawBoards();
+      }
+    }
+
+    function setMsg(txt) {
+      document.getElementById('msg').textContent = txt;
+    }
+
+    function resetGame() {
+      playerBoard = emptyBoard();
+      botBoard = emptyBoard();
+      playerHits = 0;
+      botHits = 0;
+      botShots = [];
+      gameOver = false;
+      playerTurn = true;
+      placeShipsRandom(playerBoard);
+      placeShipsRandom(botBoard);
+      setMsg("¡Empieza! Dispara en el tablero de Ángel.bot.");
+      drawBoards();
+    }
+
+    resetGame();
+  </script>
+</body>
+</html>

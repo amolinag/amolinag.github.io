@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flappy Bird</title>
+  <style>
+    body {
+      margin: 0;
+      background: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #gameCanvas {
+      background: #4EC0CA;
+      display: block;
+      margin: 20px auto 0 auto;
+      border: 2px solid #333;
+      touch-action: manipulation;
+      max-width: 90vw;
+      height: 480px;
+      width: 320px;
+    }
+    #score {
+      font-size: 24px;
+      margin: 10px 0;
+      text-align: center;
+    }
+    .botones-juego {
+      margin: 16px 0 8px 0;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    .botones-juego button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .tactil-control {
+      display: none;
+      margin: 18px auto 0 auto;
+      width: 200px;
+      height: 60px;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 22px;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+    }
+    @media (max-width: 500px) {
+      #gameCanvas {
+        width: 98vw;
+        height: 60vw;
+        min-height: 250px;
+        min-width: 160px;
+      }
+      .tactil-control {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="botones-juego">
+    <button id="reset">Reiniciar</button>
+    <button onclick="window.location.href='../index.html'">Volver al Portfolio</button>
+  </div>
+  <div id="score">Puntuación: 0</div>
+  <canvas id="gameCanvas" width="320" height="480"></canvas>
+  <div class="tactil-control" id="tactil">TOCA PARA SALTAR</div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+    const tactilControl = document.getElementById('tactil');
+    const resetBtn = document.getElementById('reset');
+
+    // Parámetros del juego
+    let bird, pipes, score, gameOver, gravity, jumpForce, pipeGap, pipeSpeed, pipeInterval, lastPipeTime, gameLoop;
+
+    function resetGame() {
+      bird = { x: 50, y: canvas.height / 2, width: 32, height: 24, vy: 0 };
+      pipes = [];
+      score = 0;
+      gameOver = false;
+      gravity = 0.5;
+      jumpForce = -8;
+      pipeGap = 120;
+      pipeSpeed = 2.5;
+      pipeInterval = 1400;
+      lastPipeTime = Date.now();
+      scoreElement.textContent = `Puntuación: ${score}`;
+      if (gameLoop) clearInterval(gameLoop);
+      gameLoop = setInterval(gameStep, 1000/60);
+    }
+
+    function drawBird() {
+      ctx.fillStyle = "#FFD700";
+      ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+      ctx.fillStyle = "#000";
+      ctx.beginPath();
+      ctx.arc(bird.x + 24, bird.y + 8, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#FFA500";
+      ctx.beginPath();
+      ctx.moveTo(bird.x + bird.width, bird.y + 12);
+      ctx.lineTo(bird.x + bird.width + 8, bird.y + 14);
+      ctx.lineTo(bird.x + bird.width, bird.y + 16);
+      ctx.fill();
+    }
+
+    function drawPipes() {
+      ctx.fillStyle = "#388E3C";
+      pipes.forEach(pipe => {
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+        ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+      });
+    }
+
+    function updatePipes() {
+      let now = Date.now();
+      if (now - lastPipeTime > pipeInterval) {
+        let min = 40, max = canvas.height - pipeGap - 40;
+        let top = Math.floor(Math.random() * (max - min + 1)) + min;
+        pipes.push({
+          x: canvas.width,
+          width: 50,
+          top: top,
+          bottom: top + pipeGap,
+          passed: false
+        });
+        lastPipeTime = now;
+      }
+      pipes.forEach(pipe => { pipe.x -= pipeSpeed; });
+      pipes = pipes.filter(pipe => pipe.x + pipe.width > 0);
+    }
+
+    function checkCollision() {
+      // Suelo y techo
+      if (bird.y <= 0 || bird.y + bird.height >= canvas.height) {
+        gameOver = true;
+      }
+      // Tuberías
+      pipes.forEach(pipe => {
+        if (
+          bird.x + bird.width > pipe.x &&
+          bird.x < pipe.x + pipe.width &&
+          (bird.y < pipe.top || bird.y + bird.height > pipe.bottom)
+        ) {
+          gameOver = true;
+        }
+        // Puntuación
+        if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+          pipe.passed = true;
+          score++;
+          scoreElement.textContent = `Puntuación: ${score}`;
+        }
+      });
+    }
+
+    function gameStep() {
+      if (gameOver) {
+        clearInterval(gameLoop);
+        setTimeout(() => alert(`Game Over! Puntuación: ${score}`), 100);
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Actualizar física
+      bird.vy += gravity;
+      bird.y += bird.vy;
+
+      // Dibujar y actualizar
+      drawBird();
+      updatePipes();
+      drawPipes();
+      checkCollision();
+    }
+
+    function jump() {
+      if (!gameOver) bird.vy = jumpForce;
+    }
+
+    // Controles
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' || e.key === ' ') jump();
+    });
+    canvas.addEventListener('mousedown', jump);
+    tactilControl.addEventListener('touchstart', jump);
+    tactilControl.addEventListener('mousedown', jump);
+
+    resetBtn.addEventListener('click', resetGame);
+
+    // Iniciar juego
+    resetGame();
+  </script>
+</body>
+</html>

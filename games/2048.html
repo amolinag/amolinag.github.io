@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2048 - Verde & Negro</title>
+  <style>
+    body {
+      background: #000000;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin: 20px 0 5px 0;
+      color: #6aff6a;
+      text-shadow: 1px 1px 4px #000;
+    }
+    #score {
+      font-size: 22px;
+      background: #1a5d1a;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 24px;
+      margin-bottom: 15px;
+      display: inline-block;
+      box-shadow: 0 2px 6px #000a;
+    }
+    .game-container {
+      background: #0b3d0b;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 6px 30px #000b;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      grid-template-rows: repeat(4, 60px);
+      gap: 10px;
+      background: #0b3d0b;
+      border-radius: 8px;
+    }
+    .tile {
+      width: 60px;
+      height: 60px;
+      background: #222;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000000;
+      transition: background 0.2s, color 0.2s;
+      user-select: none;
+      box-shadow: 0 1px 4px #0008;
+    }
+    .x2    { background: #1a5d1a; color: #000000; }
+    .x4    { background: #2a7d2a; color: #000000; }
+    .x8    { background: #3a9d3a; color: #000000; }
+    .x16   { background: #4abf4a; color: #000000; }
+    .x32   { background: #5adf5a; color: #000000; }
+    .x64   { background: #6aff6a; color: #000000; }
+    .x128  { background: #7aff7a; color: #000000; }
+    .x256  { background: #8aff8a; color: #000000; }
+    .x512  { background: #9aff9a; color: #000000; }
+    .x1024 { background: #aaffaa; color: #000000; font-size: 20px; }
+    .x2048 { background: #bbffbb; color: #000000; font-size: 20px; }
+    .x4096, .x8192, .x16384 { background: #0b3d0b; color: #fff; font-size: 18px; }
+    .botones-juego {
+      margin: 18px 0 10px 0;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    .botones-juego button {
+      padding: 10px 20px;
+      background: #1a5d1a;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px #0005;
+    }
+    .botones-juego button:hover {
+      background: #2a7d2a;
+    }
+    .mobile-controls {
+      display: none;
+      grid-template-areas:
+        ". up ."
+        "left . right"
+        ". down .";
+      gap: 10px;
+      margin: 18px 0 0 0;
+      width: 220px;
+    }
+    .mobile-controls button {
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      border: none;
+      border-radius: 50%;
+      background: #1a5d1a;
+      color: #ffffff;
+      box-shadow: 0 2px 8px #0003;
+      user-select: none;
+      touch-action: manipulation;
+      transition: background 0.2s;
+    }
+    .mobile-controls button:active {
+      background: #2a7d2a;
+    }
+    #up { grid-area: up; }
+    #left { grid-area: left; }
+    #down { grid-area: down; }
+    #right { grid-area: right; }
+
+    @media (max-width: 600px) {
+      .game-container {
+        padding: 8px;
+      }
+      .grid {
+        grid-template-columns: repeat(4, 16vw);
+        grid-template-rows: repeat(4, 16vw);
+        gap: 3vw;
+      }
+      .tile {
+        width: 16vw;
+        height: 16vw;
+        font-size: 6vw;
+      }
+      .mobile-controls {
+        display: grid;
+      }
+    }
+
+    /* Estilos para ranking */
+    .ranking-container {
+      background: #0b3d0b;
+      color: #fff;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px auto;
+      max-width: 300px;
+      box-shadow: 0 2px 10px #000a;
+    }
+    .ranking-container h2 {
+      margin: 0 0 10px 0;
+      color: #6aff6a;
+      text-align: center;
+    }
+    #ranking {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #ranking li {
+      padding: 6px 12px;
+      background: #1a5d1a;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nombre {
+      font-weight: bold;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 150px;
+      display: inline-block;
+    }
+    .puntos {
+      font-family: monospace;
+      margin-left: 16px;
+      color: #fff;
+      min-width: 40px;
+      text-align: right;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>2048</h1>
+  <div id="score">Puntuación: 0</div>
+  <div class="game-container">
+    <div class="grid" id="grid"></div>
+  </div>
+  <div class="botones-juego">
+    <button id="reset">Reiniciar</button>
+    <button onclick="window.location.href='../index.html'">Volver al Portfolio</button>
+  </div>
+
+  <!-- Contenedor para ranking -->
+  <div class="ranking-container">
+    <h2>Top 5</h2>
+    <ul id="ranking"></ul>
+  </div>
+
+  <div class="mobile-controls">
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+  </div>
+
+  <script>
+    // --- Variables y lógica 2048 ---
+    const grid = document.getElementById("grid");
+    const scoreElem = document.getElementById("score");
+    const size = 4;
+    let board, score, hasMoved, gameOver;
+
+    // --- Ranking ---
+    let ranking = JSON.parse(localStorage.getItem('ranking_2048')) || [];
+
+    function updateRanking() {
+      const rankingElem = document.getElementById("ranking");
+      rankingElem.innerHTML = "";
+      // Ordena de mayor a menor antes de mostrar
+      ranking.sort((a, b) => b.score - a.score);
+      ranking.slice(0, 5).forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="nombre">${item.name}</span><span class="puntos">${item.score}</span>`;
+        rankingElem.appendChild(li);
+      });
+    }
+
+    function saveScore(score, name) {
+      ranking.push({ name: name, score: score });
+      ranking.sort((a, b) => b.score - a.score);
+      ranking = ranking.slice(0, 5);
+      localStorage.setItem('ranking_2048', JSON.stringify(ranking));
+      updateRanking();
+    }
+
+    function initBoard() {
+      board = Array(size).fill().map(() => Array(size).fill(0));
+      score = 0;
+      gameOver = false;
+      addTile();
+      addTile();
+      updateBoard();
+      updateScore();
+    }
+
+    function addTile() {
+      let empty = [];
+      for (let r = 0; r < size; r++)
+        for (let c = 0; c < size; c++)
+          if (board[r][c] === 0) empty.push({r, c});
+      if (empty.length === 0) return;
+      let {r, c} = empty[Math.floor(Math.random() * empty.length)];
+      board[r][c] = Math.random() < 0.9 ? 2 : 4;
+    }
+
+    function updateBoard() {
+      grid.innerHTML = "";
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const tile = document.createElement("div");
+          tile.className = "tile" + (board[r][c] ? " x" + board[r][c] : "");
+          tile.textContent = board[r][c] || "";
+          grid.appendChild(tile);
+        }
+      }
+    }
+
+    function updateScore() {
+      scoreElem.textContent = "Puntuación: " + score;
+    }
+
+    function slide(row) {
+      let arr = row.filter(val => val);
+      for (let i = 0; i < arr.length - 1; i++) {
+        if (arr[i] === arr[i+1]) {
+          arr[i] *= 2;
+          score += arr[i];
+          arr[i+1] = 0;
+        }
+      }
+      arr = arr.filter(val => val);
+      while (arr.length < size) arr.push(0);
+      return arr;
+    }
+
+    function rotateLeft(mat) {
+      return mat[0].map((_, i) => mat.map(row => row[size-1-i]));
+    }
+    function rotateRight(mat) {
+      return mat[0].map((_, i) => mat.map(row => row[i]).reverse());
+    }
+
+    function move(dir) {
+      if (gameOver) return;
+      let oldBoard = board.map(row => row.slice());
+      if (dir === "left") {
+        for (let r = 0; r < size; r++) board[r] = slide(board[r]);
+      } else if (dir === "right") {
+        for (let r = 0; r < size; r++) board[r] = slide(board[r].slice().reverse()).reverse();
+      } else if (dir === "up") {
+        board = rotateLeft(board);
+        for (let r = 0; r < size; r++) board[r] = slide(board[r]);
+        board = rotateRight(board);
+      } else if (dir === "down") {
+        board = rotateLeft(board);
+        for (let r = 0; r < size; r++) board[r] = slide(board[r].slice().reverse()).reverse();
+        board = rotateRight(board);
+      }
+      if (!boardsEqual(oldBoard, board)) {
+        addTile();
+        updateBoard();
+        updateScore();
+        if (isGameOver()) {
+          gameOver = true;
+          setTimeout(() => {
+            if (confirm("¡Juego terminado! Puntuación: " + score + "\n¿Quieres guardar tu puntuación en el ranking?")) {
+              const name = prompt("Introduce tu nombre:");
+              if (name) saveScore(score, name);
+            }
+          }, 100);
+        }
+      }
+    }
+
+    function boardsEqual(a, b) {
+      for (let r = 0; r < size; r++)
+        for (let c = 0; c < size; c++)
+          if (a[r][c] !== b[r][c]) return false;
+      return true;
+    }
+
+    function isGameOver() {
+      for (let r = 0; r < size; r++)
+        for (let c = 0; c < size; c++) {
+          if (board[r][c] === 0) return false;
+          if (c < size-1 && board[r][c] === board[r][c+1]) return false;
+          if (r < size-1 && board[r][c] === board[r+1][c]) return false;
+        }
+      return true;
+    }
+
+    // --- Controles ---
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft") move("left");
+      if (e.key === "ArrowRight") move("right");
+      if (e.key === "ArrowUp") move("up");
+      if (e.key === "ArrowDown") move("down");
+    });
+
+    // Botones móviles
+    document.getElementById("up").addEventListener("touchstart", e => { e.preventDefault(); move("up"); });
+    document.getElementById("down").addEventListener("touchstart", e => { e.preventDefault(); move("down"); });
+    document.getElementById("left").addEventListener("touchstart", e => { e.preventDefault(); move("left"); });
+    document.getElementById("right").addEventListener("touchstart", e => { e.preventDefault(); move("right"); });
+
+    // Soporte mouse para botones móviles
+    document.getElementById("up").addEventListener("mousedown", e => { e.preventDefault(); move("up"); });
+    document.getElementById("down").addEventListener("mousedown", e => { e.preventDefault(); move("down"); });
+    document.getElementById("left").addEventListener("mousedown", e => { e.preventDefault(); move("left"); });
+    document.getElementById("right").addEventListener("mousedown", e => { e.preventDefault(); move("right"); });
+
+    // Soporte swipe para móvil
+    let touchStartX = null, touchStartY = null;
+    grid.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    });
+    grid.addEventListener('touchend', function(e) {
+      if (touchStartX === null || touchStartY === null) return;
+      let dx = e.changedTouches[0].clientX - touchStartX;
+      let dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) move("right");
+        else if (dx < -30) move("left");
+      } else {
+        if (dy > 30) move("down");
+        else if (dy < -30) move("up");
+      }
+      touchStartX = null; touchStartY = null;
+    });
+
+    // Reiniciar
+    document.getElementById("reset").addEventListener("click", initBoard);
+
+    // Inicializar ranking y tablero
+    updateRanking();
+    initBoard();
+  </script>
+</body>
+</html>

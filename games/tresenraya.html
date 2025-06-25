@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tres en Raya vs Bot Invencible</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .mensaje-trato {
+            margin: 1.5rem 0 1rem 0;
+            background: #222;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            text-align: center;
+            box-shadow: 0 2px 8px #0004;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            margin: 2rem 0;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            color: #222;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .cell:hover {
+            background: #eee;
+        }
+        .win {
+            background: #27ae60 !important;
+            color: #fff !important;
+        }
+        #status {
+            margin: 1rem 0;
+            font-size: 1.3em;
+            color: #2ecc71;
+            text-align: center;
+        }
+        .botones-juego {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        button {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tres en Raya</h1>
+    <div class="mensaje-trato">
+        ¿Qué tal si hacemos un trato?<br>
+        Si me ganas al tres en raya: <b>no me contratas</b><br>
+        Si te gano: <b>¡me contratas!</b>
+    </div>
+    <div id="status">Comienza el jugador (X)</div>
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <div class="botones-juego">
+        <button id="reset">Reiniciar</button>
+        <button onclick="window.location.href='/index.html'">Volver al Portfolio</button>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const status = document.getElementById('status');
+        const resetBtn = document.getElementById('reset');
+        let cells = Array.from(board.querySelectorAll('.cell'));
+        let currentPlayer = 'X'; // El jugador humano siempre es 'X'
+        let gameActive = true;
+
+        function initializeBoard() {
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('win');
+            });
+            currentPlayer = 'X';
+            gameActive = true;
+            status.textContent = 'Comienza el jugador (X)';
+        }
+
+        function checkWinner() {
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (let combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (cells[a].textContent &&
+                    cells[a].textContent === cells[b].textContent &&
+                    cells[a].textContent === cells[c].textContent) {
+                    cells[a].classList.add('win');
+                    cells[b].classList.add('win');
+                    cells[c].classList.add('win');
+                    return cells[a].textContent;
+                }
+            }
+            return null;
+        }
+
+        function checkDraw() {
+            return cells.every(cell => cell.textContent !== '');
+        }
+
+        function botMove() {
+            if (!gameActive) return;
+            const bestMove = getBestMove();
+            if (bestMove !== -1) {
+                cells[bestMove].textContent = 'O';
+                const winner = checkWinner();
+                if (winner) {
+                    gameActive = false;
+                    status.textContent = `¡Ganó el bot (O)!`;
+                } else if (checkDraw()) {
+                    gameActive = false;
+                    status.textContent = '¡Empate!';
+                } else {
+                    currentPlayer = 'X';
+                    status.textContent = 'Turno del jugador (X)';
+                }
+            }
+        }
+
+        function getBestMove() {
+            let bestScore = -Infinity;
+            let move = -1;
+            let boardArr = cells.map(cell => cell.textContent);
+            for (let i = 0; i < 9; i++) {
+                if (!boardArr[i]) {
+                    boardArr[i] = 'O';
+                    let score = minimax(boardArr, 0, false);
+                    boardArr[i] = '';
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = i;
+                    }
+                }
+            }
+            return move;
+        }
+
+        function minimax(boardArr, depth, isMaximizing) {
+            let result = tempCheckWinner(boardArr);
+            if (result === 'O') return 1;
+            if (result === 'X') return -1;
+            if (boardArr.every(cell => cell)) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!boardArr[i]) {
+                        boardArr[i] = 'O';
+                        let score = minimax(boardArr, depth + 1, false);
+                        boardArr[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!boardArr[i]) {
+                        boardArr[i] = 'X';
+                        let score = minimax(boardArr, depth + 1, true);
+                        boardArr[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function tempCheckWinner(boardArr) {
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (let combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (boardArr[a] && boardArr[a] === boardArr[b] && boardArr[a] === boardArr[c]) {
+                    return boardArr[a];
+                }
+            }
+            return null;
+        }
+
+        function handleCellClick(e) {
+            if (!gameActive || currentPlayer !== 'X') return;
+            const cell = e.target;
+            if (cell.textContent !== '') return;
+            cell.textContent = currentPlayer;
+            const winner = checkWinner();
+            if (winner) {
+                gameActive = false;
+                status.textContent = `¡Ganaste (${winner})!`;
+            } else if (checkDraw()) {
+                gameActive = false;
+                status.textContent = '¡Empate!';
+            } else {
+                currentPlayer = 'O';
+                status.textContent = 'Turno del bot (O)...';
+                setTimeout(botMove, 500);
+            }
+        }
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        resetBtn.addEventListener('click', initializeBoard);
+
+        initializeBoard();
+    </script>
+</body>
+</html>

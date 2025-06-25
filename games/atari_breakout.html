@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Atari Breakout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+    #gameCanvas {
+      background: #000;
+      margin: 20px auto;
+      touch-action: none;
+      max-width: 100vw;
+    }
+    #score {
+      color: #fff;
+      font-size: 24px;
+      margin: 10px 0;
+    }
+    .botones {
+      margin: 10px 0;
+      display: flex;
+      gap: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .flechas-movil {
+      display: none;
+      gap: 40px;
+      margin: 20px 0;
+    }
+    .flecha {
+      width: 60px;
+      height: 60px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+      touch-action: manipulation;
+    }
+    @media (max-width: 768px) {
+      #gameCanvas {
+        width: 95vw;
+        height: 60vh;
+      }
+      .flechas-movil {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="botones">
+    <button id="portfolioBtn">Volver al Portfolio</button>
+    <button id="reiniciarBtn">Reiniciar</button>
+  </div>
+  <div id="score">Puntuación: 0</div>
+  <canvas id="gameCanvas"></canvas>
+  <div class="flechas-movil">
+    <div class="flecha" id="flechaIzquierda">←</div>
+    <div class="flecha" id="flechaDerecha">→</div>
+  </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let score = 0;
+    
+    // Configuración inicial
+    canvas.width = 800;
+    canvas.height = 600;
+    
+    // Elementos del juego
+    let pelota = {
+      x: canvas.width/2,
+      y: canvas.height-30,
+      radio: 10,
+      dx: 4,
+      dy: -4
+    };
+    
+    let paleta = {
+      x: canvas.width/2 - 75,
+      y: canvas.height - 10,
+      ancho: 150,
+      alto: 10,
+      velocidad: 7
+    };
+    
+    let bloques = [];
+    const filas = 5;
+    const columnas = 10;
+    
+    // Crear bloques
+    function crearBloques() {
+      for(let i = 0; i < filas; i++) {
+        bloques[i] = [];
+        for(let j = 0; j < columnas; j++) {
+          bloques[i][j] = {
+            x: j * 80 + 10,
+            y: i * 30 + 50,
+            ancho: 70,
+            alto: 20,
+            color: `hsl(${Math.random()*360}, 70%, 50%)`,
+            visible: true
+          };
+        }
+      }
+    }
+    crearBloques();
+    
+    // Controles
+    let izquierda = false;
+    let derecha = false;
+    
+    // Eventos teclado
+    document.addEventListener('keydown', e => {
+      if(e.key === 'ArrowLeft') izquierda = true;
+      if(e.key === 'ArrowRight') derecha = true;
+    });
+    
+    document.addEventListener('keyup', e => {
+      if(e.key === 'ArrowLeft') izquierda = false;
+      if(e.key === 'ArrowRight') derecha = false;
+    });
+    
+    // Controles táctiles
+    document.getElementById('flechaIzquierda').addEventListener('touchstart', () => izquierda = true);
+    document.getElementById('flechaIzquierda').addEventListener('touchend', () => izquierda = false);
+    document.getElementById('flechaDerecha').addEventListener('touchstart', () => derecha = true);
+    document.getElementById('flechaDerecha').addEventListener('touchend', () => derecha = false);
+    
+    // Colisiones
+    function detectarColisiones() {
+      // Colisión con bloques
+      for(let i = 0; i < filas; i++) {
+        for(let j = 0; j < columnas; j++) {
+          let bloque = bloques[i][j];
+          if(bloque.visible && 
+             pelota.x > bloque.x && 
+             pelota.x < bloque.x + bloque.ancho &&
+             pelota.y > bloque.y && 
+             pelota.y < bloque.y + bloque.alto) {
+            bloque.visible = false;
+            pelota.dy *= -1;
+            score += 10;
+            document.getElementById('score').textContent = `Puntuación: ${score}`;
+          }
+        }
+      }
+      
+      // Colisión con paleta
+      if(pelota.x > paleta.x && 
+         pelota.x < paleta.x + paleta.ancho &&
+         pelota.y + pelota.radio > paleta.y) {
+        pelota.dy = -Math.abs(pelota.dy);
+      }
+    }
+    
+    // Reiniciar juego
+    document.getElementById('reiniciarBtn').addEventListener('click', () => {
+      score = 0;
+      pelota = {
+        x: canvas.width/2,
+        y: canvas.height-30,
+        radio: 10,
+        dx: 4,
+        dy: -4
+      };
+      crearBloques();
+      document.getElementById('score').textContent = `Puntuación: ${score}`;
+    });
+    
+    // Bucle del juego
+    function actualizar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Mover paleta
+      if(izquierda && paleta.x > 0) paleta.x -= paleta.velocidad;
+      if(derecha && paleta.x < canvas.width - paleta.ancho) paleta.x += paleta.velocidad;
+      
+      // Mover pelota
+      pelota.x += pelota.dx;
+      pelota.y += pelota.dy;
+      
+      // Rebotes
+      if(pelota.x + pelota.radio > canvas.width || pelota.x - pelota.radio < 0) pelota.dx *= -1;
+      if(pelota.y - pelota.radio < 0) pelota.dy *= -1;
+      
+      // Game Over
+      if(pelota.y + pelota.radio > canvas.height) {
+        alert(`Game Over! Puntuación: ${score}`);
+        document.getElementById('reiniciarBtn').click();
+      }
+      
+      // Dibujar elementos
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(pelota.x, pelota.y, pelota.radio, 0, Math.PI*2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(paleta.x, paleta.y, paleta.ancho, paleta.alto);
+      
+      // Dibujar bloques
+      for(let i = 0; i < filas; i++) {
+        for(let j = 0; j < columnas; j++) {
+          if(bloques[i][j].visible) {
+            ctx.fillStyle = bloques[i][j].color;
+            ctx.fillRect(bloques[i][j].x, bloques[i][j].y, bloques[i][j].ancho, bloques[i][j].alto);
+          }
+        }
+      }
+      
+      detectarColisiones();
+      requestAnimationFrame(actualizar);
+    }
+    
+    // Enlace al portfolio
+    document.getElementById('portfolioBtn').addEventListener('click', () => {
+      window.location.href = 'https://brown-wombat-698490.hostingersite.com/index.html';
+    });
+    
+    actualizar();
+  </script>
+</body>
+</html>
